@@ -1,0 +1,43 @@
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: aqua365_backend
+    environment:
+      - DB_URL=sqlite:////app/data/telemetry.db
+      - CORS_ORIGINS=http://localhost:8080
+    volumes:
+      - backend_data:/app/data
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  feeder:
+    build:
+      context: ./simulator   # carpeta donde está tu simulator.py (feeder)
+      dockerfile: Dockerfile.feeder
+    container_name: aqua365_feeder
+    environment:
+      - API_BASE=http://backend:8000       # apunta al servicio backend del compose
+      - SITE=LO-OVALLE
+      - POZOS=pozo1,pozo2
+      - STEP_SEC=5
+      - TS_MODE=epoch                      # o "iso" si tu backend lo requiere
+      - LOG=1
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./operator-app
+    container_name: aqua365_frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  backend_data:
