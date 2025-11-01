@@ -1,0 +1,285 @@
+/* ============================================================================
+   AQUA365 – styles.css
+   Propósito: Estilos del panel de operador (estado, alarmas, tendencias, modal).
+   Convenciones:
+     - Variables de tema en :root
+     - Orden: Reset → Base → Layout → Controles → Tarjetas → Listas → Modal → Stats → Utilidades → Footer
+     - Estados: .ok / .warn / .crit
+   ============================================================================ */
+
+/* === Reset mínimo ========================================================== */
+* { box-sizing: border-box; }
+
+/* === Design Tokens (Tema) ================================================== */
+:root {
+  --bg: #0b1220;
+  --card: #121a2a;
+  --muted: #90a0bf;
+  --accent: #40a0ff;
+  --warn: #ffd166;
+  --crit: #ff6b6b;
+  --ok: #4cc9a6;
+  --text: #e8eefc;
+}
+
+/* === Base (documento) ====================================================== */
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* === Layout (contenedores y secciones) ==================================== */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid #203052;
+  background: #0d1628;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.topbar h1 { font-size: 18px; margin: 0; }
+.topbar .env { display: flex; gap: 8px; align-items: center; color: var(--muted); }
+.topbar code { background: #0a1324; padding: 2px 6px; border-radius: 6px; color: var(--accent); }
+
+.container { max-width: 1100px; margin: 18px auto; padding: 0 16px; }
+
+.section { margin-bottom: 22px; }
+.section h2 { margin: 0 0 12px 0; font-size: 18px; }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 14px; }
+
+/* Grid responsivo para tarjetas de pozos */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+/* === Controles (inputs, selects, botones) ================================= */
+.pozo-selector select {
+  background: #0a1324; color: var(--text);
+  border: 1px solid #25314d; border-radius: 8px; padding: 6px 10px;
+}
+
+.filters {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+.filters label {
+  font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: center;
+}
+.filters select,
+.filters input[type="text"],
+.filters input[type="date"] {
+  background: #0a1324; color: var(--text);
+  border: 1px solid #25314d; border-radius: 10px;
+  padding: 8px 12px; height: 36px; outline: none;
+}
+.filters select:focus,
+.filters input[type="text"]:focus,
+.filters input[type="date"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(64,160,255,.15);
+}
+
+/* Input con icono (fecha) */
+.input-icon { position: relative; display: flex; align-items: center; }
+.input-icon .icon {
+  position: absolute; right: 10px; width: 18px; height: 18px;
+  color: var(--muted); pointer-events: none;
+}
+.input-icon input { padding-right: 34px; }
+
+/* Botones */
+.btn {
+  background: #184374;
+  border: 1px solid #2a6cca;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn:hover { background: #2d7ff7; }
+
+/* === Tarjetas/KPIs de pozos =============================================== */
+.card {
+  background: var(--card);
+  border: 1px solid #223253;
+  border-radius: 14px;
+  padding: 12px;
+}
+.card h3 { margin: 0 0 8px 0; font-size: 16px; }
+
+.card-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+}
+
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.kpi {
+  background: #0f1930; border: 1px solid #223253; border-radius: 10px; padding: 10px;
+}
+.kpi label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.kpi strong { font-size: 18px; }
+
+/* Estados visuales KPI (banda izquierda) */
+.kpi.ok   { border-left: 4px solid var(--ok); }
+.kpi.warn { border-left: 4px solid var(--warn); }
+.kpi.crit { border-left: 4px solid var(--crit); }
+
+/* Badges (estado bomba, etc.) */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; padding: 4px 8px; border-radius: 999px; border: 1px solid #284268;
+}
+.badge.ok   { color: var(--ok);   border-color: var(--ok); }
+.badge.warn { color: var(--warn); border-color: var(--warn); }
+.badge.crit { color: var(--crit); border-color: var(--crit); }
+.badge.off  { color: #8b98b6;     border-color: #3a4a6a; }
+
+/* Botón “i” dentro de la tarjeta */
+.info-btn {
+  width: 22px; height: 22px; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid #2a3c61; color: #9fb4de; background: #0f1930;
+  cursor: pointer; margin-left: 8px;
+}
+.info-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* === Listas y alarmas ====================================================== */
+.list { display: flex; flex-direction: column; gap: 8px; }
+.list.scroll {
+  max-height: 360px;       /* altura fija con barra */
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.group { margin-bottom: 10px; }
+.group .day {
+  position: sticky; top: 0;
+  background: #0d1628;     /* fondo para que no se mezcle al hacer scroll */
+  padding: 6px 8px; border-left: 4px solid #284268;
+  font-size: 12px; color: var(--muted);
+}
+
+.item {
+  background: var(--card); border: 1px solid #223253; border-radius: 12px; padding: 10px;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.item .meta { display: flex; gap: 10px; align-items: center; color: var(--muted); font-size: 12px; }
+.item .msg { font-size: 14px; }
+
+/* Estados visuales de ítems (banda izquierda) */
+.item.ok   { border-left: 4px solid var(--ok); }
+.item.warn { border-left: 4px solid var(--warn); }
+.item.crit { border-left: 4px solid var(--crit); }
+
+/* === Modal (información de umbrales) ====================================== */
+.modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,.55);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; z-index: 1000;
+}
+.modal.hidden { display: none; }
+
+.modal__panel {
+  width: min(900px, 96vw);
+  background: #0e1627; color: var(--text);
+  border: 1px solid #233055; border-radius: 16px;
+  box-shadow: 0 20px 80px rgba(0,0,0,.55);
+  overflow: hidden;
+}
+.modal__header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid #203052;
+}
+.modal__header h3 { margin: 0; font-size: 20px; letter-spacing: .2px; }
+.modal__close {
+  background: #12213d; border: 1px solid #2a3c61; color: #dfe8ff;
+  border-radius: 10px; padding: 8px 12px; cursor: pointer; font-weight: 600;
+}
+.modal__close:hover { border-color: var(--accent); color: #fff; }
+.modal__body { padding: 18px 20px; font-size: 15px; line-height: 1.5; }
+
+/* === Stats dentro del modal (tarjetas compactas) =========================== */
+.stats-grid {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.stat {
+  background: #0f1930; border: 1px solid #233659; border-radius: 14px;
+  padding: 14px;
+}
+.stat h4 {
+  margin: 0 0 8px 0; font-size: 15px; font-weight: 700; color: #e5ecff;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.stat .row { display: flex; align-items: center; justify-content: space-between; margin: 6px 0; }
+
+.pill {
+  display: inline-block; padding: 3px 10px; border-radius: 999px;
+  border: 1px solid #2a3c61; font-size: 12px; font-weight: 600;
+}
+.pill.ok   { color: var(--ok);   border-color: var(--ok); }
+.pill.warn { color: var(--warn); border-color: var(--warn); }
+.pill.crit { color: var(--crit); border-color: var(--crit); }
+
+.value { font-weight: 700; opacity: .95; }
+.note  { color: #9fb4de; font-size: 12px; margin-top: 8px; }
+
+/* === Utilidades y menores ================================================== */
+.small { color: #9fb4de; font-size: 13px; margin: 4px 0 16px; }
+
+/* === Footer ================================================================ */
+.footer {
+  padding: 18px; text-align: center; color: var(--muted);
+  border-top: 1px solid #203052; margin-top: 30px;
+}
+
+.chart-wrap{
+  height: 320px;           /* controla la altura del gráfico */
+  max-height: 60vh;        /* opcional: tope relativo a la ventana */
+  position: relative;      /* necesario para Chart.js responsive */
+}
+#timeseries{
+  width: 100% !important;  /* que ocupe ancho del contenedor */
+  height: 100% !important; /* que se ajuste a la altura fija */
+  display: block;
+}
+/* === Tabla de puntos (bajo el gráfico) ===================================== */
+.series-table-wrap { margin-top: 10px; }
+.series-table-title { margin: 6px 0 8px 0; font-size: 14px; color: var(--muted); }
+
+.series-table-scroll {
+  max-height: 220px;        /* scroll para no alargar la página */
+  overflow: auto;
+  border: 1px solid #223253;
+  border-radius: 10px;
+  background: var(--card);
+}
+
+.series-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.series-table thead th {
+  position: sticky; top: 0;
+  background: #0d1628;
+  color: var(--muted);
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid #223253;
+}
+
+.series-table tbody td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #1a2742;
+}
+
+.series-table tbody tr:hover {
+  background: #0f1930;
+}

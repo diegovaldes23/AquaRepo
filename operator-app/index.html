@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- AQUA365 – Panel de Operador -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>AQUA365 – Panel de Operador</title>
+
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+  <link rel="icon" href="data:,">
+
+
+  <!-- Librerías UMD (disponibles como globals) -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3" defer></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2" defer></script> -->
+
+  <!-- App como módulo (coordina todo) -->
+  <script type="module" src="./js/app.js"></script>
+</head>
+
+<body>
+  <noscript><div style="padding:12px;background:#321;color:#fff;text-align:center">Esta aplicación requiere JavaScript.</div></noscript>
+
+  <!-- Modal de info de umbrales -->
+  <div id="infoModal" class="modal hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="infoTitle">
+    <div class="modal__panel">
+      <div class="modal__header">
+        <h3 id="infoTitle">Rangos de operación</h3>
+        <button id="infoClose" class="modal__close" aria-label="Cerrar">✕</button>
+      </div>
+      <div id="infoBody" class="modal__body"></div>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <h1>AQUA365 – Panel de Operador</h1>
+    <div class="env" role="status" aria-live="polite">
+      <span>Backend:</span> <code id="apiBase"></code>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Estado -->
+    <section class="section" aria-labelledby="estado-pozos-title">
+      <div class="section-header">
+        <h2 id="estado-pozos-title">Estado actual de pozos</h2>
+        <p id="lastUpdate" style="color:#90a0bf;font-size:13px;margin-bottom:10px;"></p>
+      </div>
+      <div id="cards" class="grid" aria-live="polite"></div>
+    </section>
+
+    <!-- Tendencia -->
+    <section class="section" aria-labelledby="tendencia-title">
+      <div class="section-header">
+        <h2 id="tendencia-title">Tendencia</h2>
+        <div class="filters" role="group" aria-label="Filtros de tendencia">
+          <label for="seriesPozo">Pozo:</label>
+          <select id="seriesPozo" name="seriesPozo"></select>
+
+          <label for="seriesDay">Día:</label>
+          <div class="input-icon">
+            <input id="seriesDay" type="text" placeholder="YYYY-MM-DD" autocomplete="off" />
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 4v4m10-4v4M3 10h18M5 8h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <button id="seriesPrev" class="btn" type="button">← Día anterior</button>
+          <button id="seriesNext" class="btn" type="button">Día siguiente →</button>
+          <button id="seriesApply" class="btn" type="button">Ver</button>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <canvas id="timeseries" aria-label="Serie temporal de nivel y caudal" role="img"></canvas>
+      </div>
+
+      <div class="series-table-wrap">
+        <h3 class="series-table-title">Puntos recibidos</h3>
+        <div class="series-table-scroll">
+          <table class="series-table" aria-label="Tabla de puntos recibidos">
+            <thead>
+              <tr><th>#</th><th>Hora</th><th>Nivel (m)</th><th>Caudal (L/s)</th></tr>
+            </thead>
+            <tbody id="seriesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Alarmas -->
+    <section class="section" aria-labelledby="alarmas-title">
+      <div class="section-header">
+        <h2 id="alarmas-title">Alarmas</h2>
+        <div class="filters" role="group" aria-label="Filtros de alarmas">
+          <label for="alarmPozo">Pozo:</label>
+          <select id="alarmPozo" name="alarmPozo">
+            <option value="">Todos</option>
+            <option value="pozo1">Pozo 1</option>
+            <option value="pozo2">Pozo 2</option>
+          </select>
+
+          <label for="alarmDate">Fecha:</label>
+          <div class="input-icon">
+            <input id="alarmDate" type="text" placeholder="Selecciona una fecha" autocomplete="off" inputmode="none" aria-describedby="alarmDateHelp" />
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 4v4m10-4v4M3 10h18M5 8h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span id="alarmDateHelp" class="sr-only">El formato de fecha es año-mes-día</span>
+
+          <button id="refreshAlarms" class="btn" type="button">Ver</button>
+        </div>
+      </div>
+      <div id="alarms" class="list scroll" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small>Proyecto AQUA365 • Lo Ovalle • Demo operador</small>
+  </footer>
+</body>
+</html>
