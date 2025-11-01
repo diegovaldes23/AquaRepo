@@ -1,0 +1,13 @@
+site: "SSR-LoOvalle"
+pozos:
+  - name: "pozo1"
+    nivel_m: [0.9, 2.1]
+    caudal_lps: [3.0, 9.0]
+    cloro_mgL: [0.3, 0.9]
+    presion_bar: [1.6, 3.5]
+  - name: "pozo2"
+    nivel_m: [0.8, 2.3]
+    caudal_lps: [2.5, 8.5]
+    cloro_mgL: [0.2, 1.0]
+    presion_bar: [1.5, 3.2]
+period_seconds: 5
